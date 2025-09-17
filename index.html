@@ -83,7 +83,7 @@
       <div class="header-left">
         <div class="logo">FA</div>
         <div class="title">
-          <h1>💰 Financial Assistant</h1>
+          <h1>💰 Financial Assistant [Dothey AI Agent]</h1>
           <p>Asisten pintar untuk analisa & perencanaan keuangan</p>
         </div>
       </div>
@@ -110,7 +110,7 @@
           <div class="messages" id="messages">
             <div class="message bot" id="welcomeMessage" style="max-width:100%">
               <div class="meta"><strong>Selamat datang!</strong></div>
-              <div><p style="margin:0;color:var(--muted)">Tanyakan apapun atau unggah file laporan. Data akan dikirim ke webhook n8n.</p></div>
+              <div><p style="margin:0;color:var(--muted)">Tanyakan apapun atau unggah file Knowledge untuk Agent AI.</p></div>
             </div>
             <div class="typing-indicator" id="typingIndicator" style="display:none">
               <div class="typing-dots">
@@ -149,7 +149,7 @@
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/4.3.0/marked.min.js"></script>
   <script>
-    const API_URL = "https://gentleman-consortium-lance-photos.trycloudflare.com/webhook/dothey_agent";
+    const API_URL = "https://gentleman-consortium-lance-photos.trycloudflare.com/workflow/n8n_chat_agent";
     const chatContainer = document.getElementById("chatContainer");
     const messages = document.getElementById("messages");
     const typingIndicator = document.getElementById("typingIndicator");
