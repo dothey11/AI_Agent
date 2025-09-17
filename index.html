@@ -148,82 +148,127 @@
   </div>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/4.3.0/marked.min.js"></script>
-  <script>
-    const API_URL = "https://gentleman-consortium-lance-photos.trycloudflare.com/webhook/dothey_agent";
-    const chatContainer = document.getElementById("chatContainer");
-    const messages = document.getElementById("messages");
-    const typingIndicator = document.getElementById("typingIndicator");
-    const messageInput = document.getElementById("messageInput");
-    const statusEl = document.getElementById("status");
-    const fileInput = document.getElementById("fileInput");
-    const selectedFileDisplay = document.getElementById("selectedFileDisplay");
-    const selectedFileName = document.getElementById("selectedFileName");
-    const selectedFileSize = document.getElementById("selectedFileSize");
-    const uploadProgress = document.getElementById("uploadProgress");
-    const uploadProgressBar = uploadProgress.querySelector("div");
+ <script>
+  const API_URL = "https://gentleman-consortium-lance-photos.trycloudflare.com/webhook/dothey_agent";
+  const chatContainer = document.getElementById("chatContainer");
+  const messages = document.getElementById("messages");
+  const typingIndicator = document.getElementById("typingIndicator");
+  const messageInput = document.getElementById("messageInput");
+  const statusEl = document.getElementById("status");
+  const fileInput = document.getElementById("fileInput");
+  const selectedFileDisplay = document.getElementById("selectedFileDisplay");
+  const selectedFileName = document.getElementById("selectedFileName");
+  const selectedFileSize = document.getElementById("selectedFileSize");
+  const uploadProgress = document.getElementById("uploadProgress");
+  const uploadProgressBar = uploadProgress.querySelector("div");
 
-    let selectedFile = null;
-    let sessionId = crypto.randomUUID();
+  let selectedFile = null;
+  let sessionId = crypto.randomUUID();
 
-    messageInput.addEventListener("keydown", e=>{
-      if(e.key==="Enter" && !e.shiftKey){
-        e.preventDefault(); sendMessage();
+  messageInput.addEventListener("keydown", e => {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      sendMessage();
+    }
+  });
+
+  function sendExampleQuestion(q) {
+    messageInput.value = q;
+    sendMessage();
+  }
+
+  function handleFileSelect(e) {
+    const f = e.target.files[0];
+    if (!f) return;
+    selectedFile = f;
+    selectedFileName.textContent = f.name;
+    selectedFileSize.textContent = (f.size / 1024).toFixed(1) + " KB";
+    selectedFileDisplay.classList.add("show");
+  }
+
+  function removeFile() {
+    selectedFile = null;
+    fileInput.value = "";
+    selectedFileDisplay.classList.remove("show");
+  }
+
+  function showTyping() { typingIndicator.style.display = "flex"; }
+  function hideTyping() { typingIndicator.style.display = "none"; }
+
+  function addMessage(text, sender) {
+    const d = document.createElement("div");
+    d.className = "message " + sender;
+    const meta = document.createElement("div");
+    meta.className = "meta";
+    meta.textContent = sender === "user" ? "You" : "Assistant";
+    const body = document.createElement("div");
+    body.innerHTML = sender === "bot" ? marked.parse(text) : text;
+    d.appendChild(meta);
+    d.appendChild(body);
+    messages.insertBefore(d, typingIndicator);
+    chatContainer.scrollTop = chatContainer.scrollHeight;
+  }
+
+  function setUploadProgress(p) { uploadProgressBar.style.width = p + "%"; }
+
+  function sendMessage() {
+    const msg = messageInput.value.trim();
+    if (!msg && !selectedFile) return;
+
+    addMessage(msg || "(file)", "user");
+    messageInput.value = "";
+    showTyping();
+    statusEl.textContent = "Mengirim...";
+
+    const fd = new FormData();
+    fd.append("chatInput", msg);
+    fd.append("session_id", sessionId);
+    if (selectedFile) fd.append("attachment", selectedFile, selectedFile.name);
+
+    const xhr = new XMLHttpRequest();
+    xhr.open("POST", API_URL, true);
+
+    xhr.upload.onprogress = e => {
+      if (e.lengthComputable) {
+        uploadProgress.style.display = "block";
+        setUploadProgress((e.loaded / e.total) * 100);
       }
-    });
+    };
 
-    function sendExampleQuestion(q){
-      messageInput.value=q; sendMessage();
-    }
-    function handleFileSelect(e){
-      const f=e.target.files[0]; if(!f) return;
-      selectedFile=f;
-      selectedFileName.textContent=f.name;
-      selectedFileSize.textContent=(f.size/1024).toFixed(1)+" KB";
-      selectedFileDisplay.classList.add("show");
-    }
-    function removeFile(){
-      selectedFile=null; fileInput.value="";
-      selectedFileDisplay.classList.remove("show");
-    }
-    function showTyping(){typingIndicator.style.display="flex";}
-    function hideTyping(){typingIndicator.style.display="none";}
-    function addMessage(text,sender){
-      const d=document.createElement("div");
-      d.className="message "+sender;
-      const meta=document.createElement("div");meta.className="meta";
-      meta.textContent=sender==="user"?"You":"Assistant";
-      const body=document.createElement("div");
-      body.innerHTML=sender==="bot"?marked.parse(text):text;
-      d.appendChild(meta);d.appendChild(body);
-      messages.insertBefore(d,typingIndicator);
-      chatContainer.scrollTop=chatContainer.scrollHeight;
-    }
-    function setUploadProgress(p){uploadProgressBar.style.width=p+"%";}
-    function sendMessage(){
-      const msg=messageInput.value.trim(); if(!msg && !selectedFile) return;
-      addMessage(msg||"(file)", "user"); messageInput.value="";
-      showTyping(); statusEl.textContent="Mengirim...";
-      const fd=new FormData();
-      fd.append("chatInput",msg); fd.append("session_id",sessionId);
-      if(selectedFile) fd.append("attachment",selectedFile,selectedFile.name);
-      const xhr=new XMLHttpRequest();
-      xhr.open("POST",API_URL,true);
-      xhr.upload.onprogress=e=>{
-        if(e.lengthComputable){uploadProgress.style.display="block";setUploadProgress((e.loaded/e.total)*100);}
-      };
-      xhr.onload=()=>{
-        hideTyping();uploadProgress.style.display="none";setUploadProgress(0);statusEl.textContent="Ready";
-        if(xhr.status===200){
-          try{const r=JSON.parse(xhr.responseText);
-            addMessage(r.ai_reply||r.AIResponse||r.message||"(no response)","bot");
-          }catch{addMessage(xhr.responseText,"bot");}
-        }else addMessage("Error "+xhr.status,"bot");
-        removeFile();
-      };
-      xhr.send(fd);
-    }
-  </script>
+    xhr.onload = () => {
+      hideTyping();
+      uploadProgress.style.display = "none";
+      setUploadProgress(0);
+      statusEl.textContent = "Ready";
+
+      if (xhr.status === 200) {
+        let raw = xhr.responseText;
+        console.log("Raw response:", raw);
+        try {
+          const r = JSON.parse(raw);
+          addMessage(r.answer || "(no response)", "bot");
+        } catch (e) {
+          console.error("JSON parse error:", e);
+          addMessage(raw || "(parse error)", "bot");
+        }
+      } else {
+        addMessage("Error " + xhr.status, "bot");
+      }
+      removeFile();
+    };
+
+    xhr.onerror = () => {
+      hideTyping();
+      statusEl.textContent = "Error";
+      addMessage("(network error)", "bot");
+      removeFile();
+    };
+
+    xhr.send(fd);
+  }
+</script>
 </body>
 </html>
+
 
 
