@@ -86,7 +86,47 @@
 </head>
 <body>
   <div class="container" role="application">
-    <!-- ... [bagian header dan body tetap sama] ... -->
+    <div class="header">
+      <div class="header-left">
+        <div class="logo">FA</div>
+        <div class="title">
+          <h1>💰 Financial Assistant [Dothey AI Agent]</h1>
+          <p>Asisten pintar untuk analisa & perencanaan keuangan</p>
+        </div>
+      </div>
+      <div id="status" style="color:var(--muted);font-size:0.9rem">Ready</div>
+    </div>
+
+    <div class="main">
+      <aside class="left">
+        <div class="welcome">
+          <strong>👋 Selamat datang</strong>
+          <p style="margin-top:8px">Saya siap membantu analisa keuangan, saran investasi, dan memproses file laporan.</p>
+          <div style="margin-top:10px;font-size:0.9rem;color:var(--muted)">Contoh pertanyaan:</div>
+          <div class="examples">
+            <div class="example" onclick="sendExampleQuestion('Bagaimana cara memulai investasi untuk pemula?')">🚀 Memulai investasi untuk pemula</div>
+            <div class="example" onclick="sendExampleQuestion('Apa saja jenis investasi jangka panjang?')">📈 Investasi jangka panjang</div>
+            <div class="example" onclick="sendExampleQuestion('Bagaimana cara diversifikasi portfolio?')">🎯 Diversifikasi portfolio</div>
+            <div class="example" onclick="sendExampleQuestion('Kapan waktu terbaik beli saham?')">⏰ Timing beli saham</div>
+          </div>
+        </div>
+      </aside>
+
+      <section class="right">
+        <div class="chat-container" id="chatContainer">
+          <div class="messages" id="messages">
+            <div class="message bot" id="welcomeMessage" style="max-width:100%">
+              <div class="meta"><strong>Selamat datang!</strong></div>
+              <div><p style="margin:0;color:var(--muted)">Tanyakan apapun atau unggah file Knowledge untuk Agent AI.</p></div>
+            </div>
+            <div class="typing-indicator" id="typingIndicator" style="display:none">
+              <div class="typing-dots">
+                <div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
     <div class="input-container">
       <div id="selectedFileDisplay" class="selected-file-display">
         <div style="display:flex;gap:10px;align-items:center">
@@ -210,3 +250,4 @@
   </script>
 </body>
 </html>
+
