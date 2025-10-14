@@ -204,19 +204,24 @@
       addMessage(msg||"(file)", "user"); messageInput.value="";
       showTyping(); statusEl.textContent="Mengirim...";
       const fd=new FormData();
-      fd.append("chatInput",msg); fd.append("session_id",sessionId);
-      if(selectedFile) fd.append("attachment",selectedFile,selectedFile.name);
+      fd.append("chatInput",msg);
+      fd.append("session_id",sessionId);
+      if(selectedFile) fd.append("files",selectedFile,selectedFile.name);  // ✅ perbaikan
       const xhr=new XMLHttpRequest();
       xhr.open("POST",API_URL,true);
+      xhr.setRequestHeader("Accept","application/json"); // ✅ tambahan
       xhr.upload.onprogress=e=>{
         if(e.lengthComputable){uploadProgress.style.display="block";setUploadProgress((e.loaded/e.total)*100);}
       };
       xhr.onload=()=>{
         hideTyping();uploadProgress.style.display="none";setUploadProgress(0);statusEl.textContent="Ready";
         if(xhr.status===200){
-          try{const r=JSON.parse(xhr.responseText);
+          try{
+            const r=JSON.parse(xhr.responseText);
             addMessage(r.ai_reply||r.AIResponse||r.message||"(no response)","bot");
-          }catch{addMessage(xhr.responseText,"bot");}
+          }catch{
+            addMessage(xhr.responseText,"bot");
+          }
         }else addMessage("Error "+xhr.status,"bot");
         removeFile();
       };
@@ -225,4 +230,3 @@
   </script>
 </body>
 </html>
-
